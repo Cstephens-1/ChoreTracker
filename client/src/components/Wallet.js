@@ -1,28 +1,68 @@
 import {useEffect, useState} from "react"
 import styled from "styled-components"
 import Rewards from "./Rewards"
+import UserCard from "./UserCard"
 
 function Wallet(){
 
-    const [wallet, setWallet] = useState([])
+    const [users, setUsers] = useState([])
+    const [newUserName, setNewUserName] = useState("")
+    const [newUserValue, setNewUserValue] = useState("")
 
     //fetch all children to access their wallets
-    function fetchWallets(){
+    function fetchUsers(){
         fetch("http://127.0.0.1:3000/children")
         .then(resp => resp.json())
-        .then(eachChild => setWallet(eachChild))
+        .then(eachChild => setUsers(eachChild))
     }
 
-    useEffect(fetchWallets, [])
+    function addNewUser(synthEvent){
+        synthEvent.preventDefault()
+        const newUser = {
+            name: newUserName,
+            wallet: newUserValue
+        }
+        fetch("http://127.0.0.1:3000/children", {
+            method: "POST",
+            headers: {
+                "Content-type":"application/json"
+            },
+            body: JSON.stringify(newUser)})
+            .then(resp=> resp.json())
+            .then(newUser =>{
+                setUsers([...users, newUser])
+            })
+            fetchUsers()
+        }
+    
+
+    useEffect(fetchUsers, [])
+
+    function deleteThisUser(user){
+        fetch(`http://127.0.0.1:3000/children/${user.id}`,
+        {
+            method: "DELETE"
+        });
+        let usersRemaining = users.filter(eachUser=> eachUser.id !== user.id)
+        setUsers([...usersRemaining])
+    }
 
     return(
         <WalletBox>
             <H1Styler>Wallet</H1Styler>
-            {wallet.map(eachWallet => {
+            {users.map(eachUser => {
                 return(
-                    <h1>{eachWallet.name} {eachWallet.wallet}</h1>
+                    <>
+                    
+                        <UserCard eachUser={eachUser} deleteThisUser={deleteThisUser}/>
+                    </>
                 )
             })}
+            <form>
+                <input placeholder="new name" value={newUserName} onChange={e=> setNewUserName(e.target.value)}></input>
+                <input placeholder="wallet value" value={newUserValue} onChange={e=> setNewUserValue(e.target.value)}></input>
+                <button onClick={addNewUser}>Add a new user</button>
+            </form>
             <button>Rewards</button>
         </WalletBox>
     )
