@@ -8,14 +8,16 @@ function Chores(){
     const [newChoreName, setNewChoreName] = useState("")
     const [newChoreValue, setNewChoreValue] = useState("")
 
-    //fetch all chores that need to be done
-    function fetchChores(){
+   
+
+    // fetch all chores that need to be done
+    function fetchAllChores(){
         fetch("http://127.0.0.1:3000/chores")
         .then(resp => resp.json())
         .then(eachChild => setChores(eachChild))
     }
 
-    useEffect(fetchChores, [])
+    useEffect(fetchAllChores, [chores])
 
     //add a new chore to the chorelist
     function addAChore(synthEvent){
@@ -35,7 +37,6 @@ function Chores(){
             .then(choresFromDB => {
                 setChores([...chores, choresFromDB])
             })
-            fetchChores()
     }
 
     //delete a chore from the chore list
@@ -62,6 +63,7 @@ function Chores(){
             {chores.map(eachChore=> {
                 return(
                     <>
+                    
                         <ChoreCard eachChore={eachChore} deleteThisChore={deleteThisChore}/>
                     </>
                 )

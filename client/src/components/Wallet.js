@@ -32,11 +32,10 @@ function Wallet(){
             .then(newUser =>{
                 setUsers([...users, newUser])
             })
-            fetchUsers()
         }
     
 
-    useEffect(fetchUsers, [])
+    useEffect(fetchUsers, [users])
 
     function deleteThisUser(user){
         fetch(`http://127.0.0.1:3000/children/${user.id}`,
